@@ -19,6 +19,11 @@ class Record:
         self.name = Name(name)
         self.phones = [Phone(phone)] if phone else []
 
+    def __repr__(self):
+        rep = ", ".join([phone.value for phone in self.phones])
+
+        return rep
+
     def add_contact(self, phone):
         self.phones.append(Phone(phone))
 
@@ -27,8 +32,8 @@ class Record:
             if phone.value == old_phone:
                 phone.value = new_phone
 
-    def remove_contacts(self, phone):
-        self.phones.pop(phone)
+    def remove_contact(self, name):
+        self.name.pop(name)
 
 
 class AddressBook(UserDict):
@@ -102,9 +107,11 @@ def add_contact(contact):
     split_contct = contact.strip().split()
     name = split_contct[0]
     phone = split_contct[1]
-    CONTACTS.update({"name": "phone"})
-    print("New contact added.")
-    return "New contact added."
+    record_add = Record(name, phone)
+    CONTACTS.add_record(record_add)
+    new_contact = f'A new contact {name} {phone}, has been added.'
+    print(new_contact)
+    return new_contact
 
 @input_error
 def chandler(name_and_phone):
@@ -125,10 +132,20 @@ def get_phone(name):
     return phone
 
 @input_error
-def show_all():
-    contacts = '\n'.join([f'{name} {telephone}' for name, telephone in CONTACTS.items()])
+def delete_contact(contact):
+    split_contct = contact.strip().split()
+    name = split_contct[0]
+    CONTACTS.pop(name)
+    print(f"Contact {name} is deleted")
+    return f"Contact {name} is deleted"
 
-    return print(contacts)
+@input_error
+def show_all():
+    string = ', '.join([f'{name} {telephone}' for name, telephone in CONTACTS.items()])
+    contacts = repr(string)
+    print(contacts)
+
+    return contacts
 
 COMMANDS = {
     "good bye": quit_func,
@@ -138,7 +155,8 @@ COMMANDS = {
     "hello": hello_func,
     "change": chandler,
     "phone": get_phone,
-    "show all": show_all
+    "show all": show_all,
+    "remove": delete_contact
 }
 
 
