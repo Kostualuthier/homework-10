@@ -15,9 +15,9 @@ class Phone(Field):
 
 
 class Record:
-    def __init__(self, name, phone):
+    def __init__(self, name):
         self.name = Name(name)
-        self.phones = [Phone(phone)] if phone else []
+        self.phones = []
 
     def __repr__(self):
         rep = ", ".join([phone.value for phone in self.phones])
@@ -25,26 +25,23 @@ class Record:
         return rep
 
     def add_contact(self, phone):
-        for phone in self.phones:
-            if phone.value == phone:
-                raise ValueError("This number is already in your contact list.")
-        self.add_contact(phone)
+        self.phones.append(Phone(phone))
 
     def replace_phone(self, old_phone, new_phone):
         for phone in self.phones:
             if phone.value == old_phone:
                 phone.value = new_phone
 
-    def remove_contact(self, name):
-        self.name.pop(name)
+    def remove_contact(self, new_phone):
+        for phone in self.phones:
+            if phone.value == new_phone:
+                self.phones.remove(phone)
+                return True
 
 
 class AddressBook(UserDict):
     def add_record(self, record: Record):
         self.data[record.name.value] = record
-
-
-CONTACTS = AddressBook()
 
 
 def input_error(handler):
@@ -110,8 +107,9 @@ def add_contact(contact):
     split_contact = contact.strip().split()
     name = split_contact[0]
     phone = split_contact[1]
-    record_add = Record(name, phone)
-    record_add.add_record(record_add)
+    record_add = Record(name)
+    record_add.add_contact(phone)
+    CONTACTS.add_record(record_add)
     new_contact = f'A new contact {name} {phone}, has been added.'
     print(new_contact)
     return new_contact
@@ -121,8 +119,8 @@ def add_new_phone(contact):
     split_contact = contact.strip().split()
     name = split_contact[0]
     phone = split_contact[1]
-    record_add_phone = addressbook.data[name]
-    record_add_phone.add_phone(phone)
+    record_add_phone = CONTACTS.data[name]
+    record_add_phone.add_contact(phone)
     return f"A new phone: {phone}, has been added to contact name: {name}."
 
 @input_error
@@ -131,15 +129,12 @@ def chandler(name_and_phone):
     name = split_contact[0]
     phone = split_contact[1]
     new_phone = split_contact[2]
-    record_change = addressbook.data[name]
-    if record_change.change_phone(old_phone=phone, new_phone=new_phone) is True:
-        message = f'A contact name: {name} number: {phone}, has been changed to {new_phone}.'
-        print(message)
-        return f'A contact name: {name} number: {phone}, has been changed to {new_phone}.'
-    else:
-        message_2 = 'The phone number not exist'
-        print(message_2)
-        return 'The phone number not exist'
+    record_change = CONTACTS.data[name]
+    record_change.replace_phone(old_phone=phone, new_phone=new_phone)
+    message = f'A contact name: {name} number: {phone}, has been changed to {new_phone}.'
+    print(message)
+    return f'A contact name: {name} number: {phone}, has been changed to {new_phone}.'
+
 
 @input_error
 def get_phone(name):
@@ -152,9 +147,11 @@ def get_phone(name):
 def delete_contact(contact):
     split_contact = contact.strip().split()
     name = split_contact[0]
-    CONTACTS.pop(name)
-    print(f"Contact {name} is deleted")
-    return f"Contact {name} is deleted"
+    phone = split_contact[1]
+    record_delete = CONTACTS.data[name]
+    record_delete.remove_contact(phone)
+    print(f"Contact name: {name} phone: {phone}, has been deleted.")
+    return f"Contact name: {name} phone: {phone}, has been deleted."
 
 @input_error
 def show_all():
@@ -173,12 +170,13 @@ COMMANDS = {
     "change": chandler,
     "phone": get_phone,
     "show all": show_all,
-    "remove": delete_contact,
-    "add phone":
+    "delete": delete_contact,
+    "add phone": add_new_phone
 }
 
 
 if __name__ == "__main__":
+    CONTACTS = AddressBook()
     main()
 
 
