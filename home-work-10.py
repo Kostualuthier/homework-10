@@ -25,7 +25,10 @@ class Record:
         return rep
 
     def add_contact(self, phone):
-        self.phones.append(Phone(phone))
+        for phone in self.phones:
+            if phone.value == phone:
+                raise ValueError("This number is already in your contact list.")
+        self.add_contact(phone)
 
     def replace_phone(self, old_phone, new_phone):
         for phone in self.phones:
@@ -104,24 +107,38 @@ def quit_func():
 
 @input_error
 def add_contact(contact):
-    split_contct = contact.strip().split()
-    name = split_contct[0]
-    phone = split_contct[1]
+    split_contact = contact.strip().split()
+    name = split_contact[0]
+    phone = split_contact[1]
     record_add = Record(name, phone)
-    CONTACTS.add_record(record_add)
+    record_add.add_record(record_add)
     new_contact = f'A new contact {name} {phone}, has been added.'
     print(new_contact)
     return new_contact
 
 @input_error
-def chandler(name_and_phone):
-    name, phone = create_data(data)
-    new_phone = data[2]
+def add_new_phone(contact):
+    split_contact = contact.strip().split()
+    name = split_contact[0]
+    phone = split_contact[1]
+    record_add_phone = addressbook.data[name]
+    record_add_phone.add_phone(phone)
+    return f"A new phone: {phone}, has been added to contact name: {name}."
 
+@input_error
+def chandler(name_and_phone):
+    split_contact = name_and_phone.strip().split()
+    name = split_contact[0]
+    phone = split_contact[1]
+    new_phone = split_contact[2]
     record_change = addressbook.data[name]
     if record_change.change_phone(old_phone=phone, new_phone=new_phone) is True:
+        message = f'A contact name: {name} number: {phone}, has been changed to {new_phone}.'
+        print(message)
         return f'A contact name: {name} number: {phone}, has been changed to {new_phone}.'
     else:
+        message_2 = 'The phone number not exist'
+        print(message_2)
         return 'The phone number not exist'
 
 @input_error
@@ -133,8 +150,8 @@ def get_phone(name):
 
 @input_error
 def delete_contact(contact):
-    split_contct = contact.strip().split()
-    name = split_contct[0]
+    split_contact = contact.strip().split()
+    name = split_contact[0]
     CONTACTS.pop(name)
     print(f"Contact {name} is deleted")
     return f"Contact {name} is deleted"
@@ -156,7 +173,8 @@ COMMANDS = {
     "change": chandler,
     "phone": get_phone,
     "show all": show_all,
-    "remove": delete_contact
+    "remove": delete_contact,
+    "add phone":
 }
 
 
